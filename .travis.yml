@@ -1,0 +1,45 @@
+sudo:
+  required
+
+dist:
+  trusty
+
+addons:
+  apt:
+    packages:
+      - pandoc
+
+language:
+  python
+
+python:
+  - 3.6
+
+env:
+  global:
+    - TOXENV="py${PYTHON_VERSION//./}"
+
+install:
+  - make install
+  - pip install coveralls
+
+script:
+  - make test
+
+after_success:
+  - coveralls
+
+before_deploy:
+  - pandoc --version
+  - pandoc -f markdown_github -t rst -o README.rst README.md
+  - mv README.rst README.md
+
+deploy:
+  provider: pypi
+  user: brew
+  distributions: sdist bdist_wheel
+  skip_cleanup: true
+  on:
+    tags: true
+  password:
+    secure: qF8+pkNamS31xYOLGNSP82lo7in995mG43Tn34SF0N8kiHSwP1r5KyM4AhplyyJoOJnjEJJ/M/3q/u+Mvj7bVRVPInWYFDqgim3fRMWn7/+LZ+cybU1AHKvgal62RHYPFOC2kR9ZWjIFVz8k8RRa07zSS3ZMpOe8lh3ks14NN7p3rnlGHfXD/8FnYMzvVTFGZAOuudYxqJm+eywyZTKfh3fYqIQDC17YLjElODzxYHxud+DAmypoLmdvqYws0EDmjBmGYxGU9nj4CWbB87ybwy7I8DQiAr7QBkgHbXFNp64Ump1zA+T21skSo83xe85XAYQkCRiqhAlL5lfTYf+Zso5KlOc90Uq7ZHPSVmQIMWldxMJ8/ShTgMH7JaNv40/HfS2uls8uI10k8YdgBi33TnvDdcQQstbMtK5NM3v+WKdlYhbeU5vfPE2hAH2kDdkMNidQ3k0PNN8a5/CUWhiKma/ld+XbQ3PczTqBXnFlF6Zb9PFMBhoWvgkr1acxGw+eGBitBLa1XaroxAbQ14cY83EV0na+LU3/0vQjOh18Lge2AcQa/t3wBrPBKgBI+GGMq2d266njTYJ3FDcrLQF8YvLmVsXY0n0QrT+lt+L4xGrSPiRUcMuIx5nowAVxcLASm3EhQwlZgP5m0p7x/nOQkPjMK8ibwqPUka9cvsGNGd8=
