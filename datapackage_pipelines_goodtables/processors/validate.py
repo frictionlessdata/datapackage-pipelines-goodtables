@@ -57,14 +57,20 @@ parameters, datapackage, res_iter = ingest()
 
 fail_on_error = parameters['fail_on_error']
 fail_on_warn = parameters['fail_on_warn']
+goodtables_options = parameters.get('goodtables', {})
 
 
-def process_resources(res_iter_, datapackage):
+def process_resources(res_iter_, datapackage, goodtables_options):
 
     def _validate_resource(res, schema):
         evaluated_rows, rows = itertools.tee(res)
         evaluated_rows = list(r._evaluate() for r in evaluated_rows)
-        report = validate(evaluated_rows, schema=schema, order_fields=False)
+        validate_options = {
+            'schema': schema,
+            'order_fields': False
+        }
+        validate_options.update(goodtables_options)
+        report = validate(evaluated_rows, **validate_options)
         _log_report(report, False, fail_on_error, fail_on_warn)
 
         yield from rows
@@ -75,4 +81,4 @@ def process_resources(res_iter_, datapackage):
         yield _validate_resource(res, dp_res['schema'])
 
 
-spew(datapackage, process_resources(res_iter, datapackage))
+spew(datapackage, process_resources(res_iter, datapackage, goodtables_options))
