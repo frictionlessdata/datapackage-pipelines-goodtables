@@ -67,7 +67,7 @@ def process_resources(res_iter_, datapackage, goodtables_options):
         evaluated_rows = list(r._evaluate() for r in evaluated_rows)
         validate_options = {
             'schema': schema,
-            'order_fields': False
+            'order_fields': True
         }
         validate_options.update(goodtables_options)
         report = validate(evaluated_rows, **validate_options)
