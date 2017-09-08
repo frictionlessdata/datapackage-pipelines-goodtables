@@ -62,9 +62,15 @@ goodtables_options = parameters.get('goodtables', {})
 
 def process_resources(res_iter_, datapackage, goodtables_options):
 
+    def _get_row_value(r):
+        if hasattr(r, '_evaluate'):
+            return r._evaluate()
+        else:
+            return r
+
     def _validate_resource(res, schema):
         evaluated_rows, rows = itertools.tee(res)
-        evaluated_rows = list(r._evaluate() for r in evaluated_rows)
+        evaluated_rows = list(_get_row_value(r) for r in evaluated_rows)
         validate_options = {
             'schema': schema,
             'order_fields': True
