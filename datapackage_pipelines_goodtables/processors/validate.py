@@ -55,8 +55,8 @@ def _log_report(report, json=False, fail_on_error=True, fail_on_warn=False):
 
 parameters, datapackage, res_iter = ingest()
 
-fail_on_error = parameters['fail_on_error']
-fail_on_warn = parameters['fail_on_warn']
+fail_on_error = parameters.get('fail_on_error', True)
+fail_on_warn = parameters.get('fail_on_warn', False)
 goodtables_options = parameters.get('goodtables', {})
 
 
