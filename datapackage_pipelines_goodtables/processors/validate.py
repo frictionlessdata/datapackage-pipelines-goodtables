@@ -8,7 +8,8 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def _log_report(report, fail_on_error=True, fail_on_warn=False):
+def _log_report(report, fail_on_error=True, fail_on_warn=False,
+                suppress_if_valid=False):
     '''
     Log a validation report with a general Dataset summary and warnings, and
     table errors.
@@ -19,37 +20,42 @@ def _log_report(report, fail_on_error=True, fail_on_warn=False):
         each line out to `level`, optionally limiting line length to
         `line_limit`.'''
         json_log_dumps = json.dumps(json_log, indent=4)
-        [log.log(level, l[:line_limit]) for l in json_log_dumps.splitlines()]
+        [report_lines.append((level, l[:line_limit]))
+         for l in json_log_dumps.splitlines()]
 
     tables = report.pop('tables')
     warnings = report.pop('warnings')
+    report_lines = []
 
     has_errors = False
 
-    log.info('DATASET')
-    log.info('='*7)
+    report_lines.append((logging.INFO, 'DATASET'))
+    report_lines.append((logging.INFO, '='*7))
 
     _split_json_log(report)
 
     if warnings:
-        log.info('-'*9)
-        log.info('Table Warnings:')
+        report_lines.append((logging.INFO, '-'*9))
+        report_lines.append((logging.INFO, 'Table Warnings:'))
         for warning in warnings:
             _split_json_log(warning, level=logging.WARN, line_limit=128)
 
     for table_number, table in enumerate(tables, start=1):
-        log.info('TABLE [%s]' % table_number)
-        log.info('='*9)
+        report_lines.append((logging.INFO, 'TABLE [%s]' % table_number))
+        report_lines.append((logging.INFO, '='*9))
         errors = table.pop('errors')
         _split_json_log(table, line_limit=128)
         if errors:
             has_errors = True
-            log.info('-'*9)
+            report_lines.append((logging.INFO, '-'*9))
             for error in errors:
                 error = {key: value or '-' for key, value in error.items()}
                 template = '[{row-number},{column-number}] [{code}] {message}'
                 message = template.format(**error)
-                log.error(message)
+                report_lines.append((logging.ERROR, message))
+
+    if not suppress_if_valid or has_errors:
+        [log.log(l[0], l[1]) for l in report_lines]
 
     if (warnings and fail_on_warn) or (has_errors and fail_on_error):
         raise RuntimeError('Datapackage failed Goodtables validation. '
@@ -60,6 +66,7 @@ parameters, datapackage, res_iter = ingest()
 
 fail_on_error = parameters.get('fail_on_error', True)
 fail_on_warn = parameters.get('fail_on_warn', False)
+suppress_if_valid = parameters.get('suppress_if_valid', True)
 goodtables_options = parameters.get('goodtables', {})
 
 
@@ -80,7 +87,7 @@ def process_resources(res_iter_, datapackage, goodtables_options):
         }
         validate_options.update(goodtables_options)
         report = validate(evaluated_rows, **validate_options)
-        _log_report(report, fail_on_error, fail_on_warn)
+        _log_report(report, fail_on_error, fail_on_warn, suppress_if_valid)
 
         yield from rows
 
