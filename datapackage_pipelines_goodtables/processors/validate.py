@@ -1,5 +1,5 @@
 import itertools
-import json as json_module
+import json
 
 from datapackage_pipelines.wrapper import ingest, spew
 from goodtables import validate
@@ -8,19 +8,22 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def _log_report(report, json=False, fail_on_error=True, fail_on_warn=False):
+def _log_report(report, fail_on_error=True, fail_on_warn=False):
+    '''
+    Log a validation report with a general Dataset summary and warnings, and
+    table errors.
+    '''
 
     def _split_json_log(json_log, level=logging.INFO, line_limit=None):
         '''Dumps json to an indented string, splits at new lines, then logs
         each line out to `level`, optionally limiting line length to
         `line_limit`.'''
-        json_log_dumps = json_module.dumps(json_log, indent=4)
+        json_log_dumps = json.dumps(json_log, indent=4)
         [log.log(level, l[:line_limit]) for l in json_log_dumps.splitlines()]
 
-    if json:
-        return log.info(json_module.dumps(report, indent=4))
     tables = report.pop('tables')
     warnings = report.pop('warnings')
+
     has_errors = False
 
     log.info('DATASET')
@@ -77,7 +80,7 @@ def process_resources(res_iter_, datapackage, goodtables_options):
         }
         validate_options.update(goodtables_options)
         report = validate(evaluated_rows, **validate_options)
-        _log_report(report, False, fail_on_error, fail_on_warn)
+        _log_report(report, fail_on_error, fail_on_warn)
 
         yield from rows
 
