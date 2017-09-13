@@ -81,7 +81,10 @@ class TestValidateProcessor(unittest.TestCase):
             'resources': [{
                 'name': 'my-resource',
                 'schema': {
-                    'fields': []
+                    'fields': [
+                        {'name': 'id', 'type': 'integer'},
+                        {'name': 'name', 'type': 'string'}
+                    ]
                 }
             }]
         }
@@ -89,7 +92,7 @@ class TestValidateProcessor(unittest.TestCase):
 
         def row_yielder():
             yield {'id': 1, 'name': 'english'}
-            yield {'name': 'english', 'thing': 'what'}
+            yield {'id': 2, 'name': 'german'}
 
         # Path to the processor we want to test
         processor_dir = os.path.dirname(
@@ -117,7 +120,7 @@ class TestValidateProcessor(unittest.TestCase):
         assert list(spew_res_iter_contents[0]) == \
             [
                 {'id': 1, 'name': 'english'},
-                {'name': 'english', 'thing': 'what'}
+                {'id': 2, 'name': 'german'}
             ]
 
     def test_validate_processor_one_resource_fail_on_warn(self):

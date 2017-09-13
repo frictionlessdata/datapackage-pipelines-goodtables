@@ -18,7 +18,7 @@ def read(*paths):
 PACKAGE = 'datapackage_pipelines_goodtables'
 NAME = PACKAGE.replace('_', '-')
 INSTALL_REQUIRES = [
-    'datapackage-pipelines',
+    'datapackage-pipelines>=1.0,<2.0',
     'goodtables'
 ]
 TESTS_REQUIRE = [
