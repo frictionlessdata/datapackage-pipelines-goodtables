@@ -50,7 +50,9 @@ class TestValidateProcessor(unittest.TestCase):
             'project': 'my-project',
             'resources': []
         }
-        params = {}
+        params = {
+            'datapackage_reports_path': 'reports'
+        }
 
         # Path to the processor we want to test
         processor_dir = os.path.dirname(
@@ -79,7 +81,8 @@ class TestValidateProcessor(unittest.TestCase):
             'resources': []
         }
         params = {
-            'fail_on_error': True
+            'fail_on_error': True,
+            'datapackage_reports_path': 'reports'
         }
 
         # Path to the processor we want to test
@@ -120,7 +123,8 @@ class TestValidateProcessor(unittest.TestCase):
         report_dir = '{}'.format(self.get_base_path())
 
         params = {
-            'reports_path': report_dir
+            'reports_path': report_dir,
+            'datapackage_reports_path': 'reports',
         }
 
         def row_yielder():
@@ -150,7 +154,7 @@ class TestValidateProcessor(unittest.TestCase):
         assert len(reports) == 1
         assert reports[0]['resource'] == 'my-resource'
         assert reports[0]['reportType'] == 'goodtables'
-        assert reports[0]['path'] == '{}/my-resource.json'.format(report_dir)
+        assert reports[0]['path'] == 'reports/my-resource.json'
 
         with io.open('{}/my-resource.json'.format(report_dir), 'r') as f:
             report_json = json.loads(f.read())
@@ -336,6 +340,7 @@ class TestValidateProcessor(unittest.TestCase):
 
         params = {
             'reports_path': report_dir,
+            'datapackage_reports_path': 'reports',
             'fail_on_error': False
         }
 
@@ -366,8 +371,7 @@ class TestValidateProcessor(unittest.TestCase):
         assert len(reports) == 1
         assert reports[0]['resource'] == 'resource-dont-fail-write'
         assert reports[0]['reportType'] == 'goodtables'
-        assert reports[0]['path'] == \
-            '{}/resource-dont-fail-write.json'.format(report_dir)
+        assert reports[0]['path'] == 'reports/resource-dont-fail-write.json'
 
         with io.open('{}/resource-dont-fail-write.json'.format(report_dir),
                      'r') as f:

@@ -16,6 +16,7 @@ fail_on_error = parameters.get('fail_on_error', True)
 write_report = parameters.get('write_report', True)
 goodtables_options = parameters.get('goodtables', {})
 reports_path = parameters.get('reports_path', 'reports')
+datapackage_reports_path = parameters.get('datapackage_reports_path', None)
 
 
 def process_resources(res_iter_, datapackage, goodtables_options):
@@ -57,14 +58,15 @@ def process_resources(res_iter_, datapackage, goodtables_options):
         yield _validate_resource(res, dp_res)
 
 
-# add report info to datapackage
-if write_report:
+# Add report info to datapackage
+if write_report and datapackage_reports_path is not None:
     reports = datapackage.get('reports', [])
     for dp_res in datapackage['resources']:
         reports.append({
             'resource': dp_res['name'],
             'reportType': 'goodtables',
-            'path': '{}/{}.json'.format(reports_path, dp_res['name'])
+            'path': '{}/{}.json'.format(datapackage_reports_path,
+                                        dp_res['name'])
         })
     datapackage['reports'] = reports
 

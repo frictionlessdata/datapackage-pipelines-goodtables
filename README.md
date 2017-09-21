@@ -28,7 +28,8 @@ Add the following to the pipeline-spec.yml configuration to validate each resour
   - run: goodtables.validate
     parameters:
         fail_on_error: True,
-        reports_path: 'reports',
+        reports_path: 'path/to/datapackage/reports',  # where reports will be written
+        datapackage_reports_path: 'reports',  # relative to datapackage.json
         write_report: True,
         goodtables:
             <key>: <value>  # options passed to goodtables.validate()
@@ -36,10 +37,11 @@ Add the following to the pipeline-spec.yml configuration to validate each resour
 
 - `fail_on_error`: An optional boolean to determine whether the pipeline should fail on validation error (default `True`).
 - `reports_path`: An optional string to define where Goodtables reports should be written (default is `reports`).
+- `datapackage_reports_path`: An optional string to define the path to the report, relative to the datapackage.json (see note below).
 - `write_report`: An optional boolean to determine whether a goodtables validation report should be written to `reports_path` (default is `True`).
 - `goodtables`: An optional object passed to `goodtables.validate()` to customise its behaviour. See [`goodtables.validate()`](https://github.com/frictionlessdata/goodtables-py/#validatesource-options) for available options.
 
-If reports are written, a `reports` property will be added to the datapackage, detailing the path to the report for each resource:
+If reports are written, and `datapackage_reports_path` is defined, a `reports` property will be added to the datapackage, detailing the path to the report for each resource:
 
 ```json
 ...
@@ -51,3 +53,5 @@ If reports are written, a `reports` property will be added to the datapackage, d
     }
 ]
 ```
+
+It is recommended that `datapackage_reports_path` is used to define a relative path, from the datapackage.json file, that represents where the report was written. `datapackage_reports_path` does not define where the reports will be written, but helps ensure a correct path is defined in the `reports` property in datapackage.json. This is useful when the pipeline concludes with a `dump_to.path` processor.
