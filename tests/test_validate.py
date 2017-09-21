@@ -142,8 +142,9 @@ class TestValidateProcessor(unittest.TestCase):
 
         # Asserts for the res_iter
         spew_res_iter_contents = list(spew_res_iter)
-        error_msg = 'Datapackage failed Goodtables validation. '\
-                    'See log for details.'
+        error_msg = 'Datapackage resource \'my-resource\' failed Goodtables ' \
+                    'validation. See report for details: ' \
+                    'tests/delete_tests/my-resource.json'
         # listing rows in resource will trigger validation
         with self.assertRaises(RuntimeError) as cm:
             list(spew_res_iter_contents[0])
