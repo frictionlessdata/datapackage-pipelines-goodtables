@@ -21,7 +21,7 @@ class TestValidateProcessor(unittest.TestCase):
     def get_base_path(cls):
         '''Making this a readonly property prevents it being overridden, and
         subsequently deleted!'''
-        return 'data/delete_tests'
+        return 'tests/delete_tests'
 
     def tearDown(self):
         # Remove all files under test path
