@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 parameters, datapackage, res_iter = ingest()
 
 fail_on_error = parameters.get('fail_on_error', True)
+write_report = parameters.get('write_report', True)
 goodtables_options = parameters.get('goodtables', {})
 reports_path = parameters.get('reports_path', 'reports')
 
@@ -36,16 +37,17 @@ def process_resources(res_iter_, datapackage, goodtables_options):
         report = goodtables.validate(evaluated_rows, **validate_options)
 
         report_file_path = '{}/{}.json'.format(reports_path, dp_res['name'])
-        os.makedirs(reports_path, exist_ok=True)
-        with io.open(report_file_path, 'w') as f:
-            f.write(json.dumps(report, indent=4))
+        if write_report:
+            os.makedirs(reports_path, exist_ok=True)
+            with io.open(report_file_path, 'w') as f:
+                f.write(json.dumps(report, indent=4))
 
         if report['error-count'] > 0 and fail_on_error:
-            raise RuntimeError('Datapackage resource \'{}\' failed '
-                               .format(dp_res['name'])
-                               + 'Goodtables validation. '
-                               + 'See report for details: {}'
-                               .format(report_file_path))
+            msg = 'Datapackage resource \'{}\' failed'.format(dp_res['name'])
+            msg += ' Goodtables validation.'
+            if write_report:
+                msg += ' See report for details: {}'.format(report_file_path)
+            raise RuntimeError(msg)
 
         yield from rows
 
@@ -56,14 +58,15 @@ def process_resources(res_iter_, datapackage, goodtables_options):
 
 
 # add report info to datapackage
-reports = datapackage.get('reports', [])
-for dp_res in datapackage['resources']:
-    reports.append({
-        'resource': dp_res['name'],
-        'reportType': 'goodtables',
-        'path': '{}/{}.json'.format(reports_path, dp_res['name'])
-    })
-datapackage['reports'] = reports
+if write_report:
+    reports = datapackage.get('reports', [])
+    for dp_res in datapackage['resources']:
+        reports.append({
+            'resource': dp_res['name'],
+            'reportType': 'goodtables',
+            'path': '{}/{}.json'.format(reports_path, dp_res['name'])
+        })
+    datapackage['reports'] = reports
 
 
 spew(datapackage, process_resources(res_iter, datapackage, goodtables_options))
