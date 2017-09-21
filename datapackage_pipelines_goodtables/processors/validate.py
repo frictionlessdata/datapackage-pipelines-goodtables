@@ -10,8 +10,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def _log_report(report, fail_on_error=True, fail_on_warn=False,
-                suppress_if_valid=False):
+def _log_report(report, fail_on_error=True, suppress_if_valid=False):
     '''
     Log a validation report with a general Dataset summary and warnings, and
     table errors.
@@ -59,7 +58,7 @@ def _log_report(report, fail_on_error=True, fail_on_warn=False,
     if not suppress_if_valid or has_errors:
         [log.log(l[0], l[1]) for l in report_lines]
 
-    if (warnings and fail_on_warn) or (has_errors and fail_on_error):
+    if has_errors and fail_on_error:
         raise RuntimeError('Datapackage failed Goodtables validation. '
                            + 'See log for details.')
 
@@ -67,7 +66,6 @@ def _log_report(report, fail_on_error=True, fail_on_warn=False,
 parameters, datapackage, res_iter = ingest()
 
 fail_on_error = parameters.get('fail_on_error', True)
-fail_on_warn = parameters.get('fail_on_warn', False)
 suppress_if_valid = parameters.get('suppress_if_valid', True)
 goodtables_options = parameters.get('goodtables', {})
 reports_path = parameters.get('reports_path', 'reports')
@@ -96,7 +94,7 @@ def process_resources(res_iter_, datapackage, goodtables_options):
                                          dp_res['name']), 'w') as f:
             f.write(json.dumps(report, indent=4))
 
-        _log_report(report, fail_on_error, fail_on_warn, suppress_if_valid)
+        _log_report(report, fail_on_error, suppress_if_valid)
 
         yield from rows
 
