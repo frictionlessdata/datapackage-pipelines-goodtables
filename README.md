@@ -28,13 +28,26 @@ Add the following to the pipeline-spec.yml configuration to validate each resour
   - run: goodtables.validate
     parameters:
         fail_on_error: True,
-        suppress_if_valid: False,
         reports_path: 'reports',
+        write_report: True,
         goodtables:
             <key>: <value>  # options passed to goodtables.validate()
 ```
 
 - `fail_on_error`: An optional boolean to determine whether the pipeline should fail on validation error (default `True`).
-- `suppress_if_valid`: An optional boolean to determine whether the goodtables validation report should be logged if there are no errors (default `False`).
 - `reports_path`: An optional string to define where Goodtables reports should be written (default is `reports`).
+- `write_report`: An optional boolean to determine whether a goodtables validation report should be written to `reports_path` (default is `True`).
 - `goodtables`: An optional object passed to `goodtables.validate()` to customise its behaviour. See [`goodtables.validate()`](https://github.com/frictionlessdata/goodtables-py/#validatesource-options) for available options.
+
+If reports are written, a `reports` property will be added to the datapackage, detailing the path to the report for each resource:
+
+```json
+...
+"reports": [
+    {
+        "resource": "my-resource",
+        "reportType": "goodtables",
+        "path": "path/to/my-resource.json"
+    }
+]
+```
