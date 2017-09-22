@@ -27,10 +27,10 @@ Add the following to the pipeline-spec.yml configuration to validate each resour
   ...
   - run: goodtables.validate
     parameters:
-        fail_on_error: True,
-        reports_path: 'path/to/datapackage/reports',  # where reports will be written
-        datapackage_reports_path: 'reports',  # relative to datapackage.json
-        write_report: True,
+        fail_on_error: True
+        reports_path: 'path/to/datapackage/reports'  # where reports will be written
+        datapackage_reports_path: 'reports'  # relative to datapackage.json
+        write_report: True
         goodtables:
             <key>: <value>  # options passed to goodtables.validate()
 ```
